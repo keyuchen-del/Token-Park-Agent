@@ -1,4 +1,5 @@
 """ops 文档生成 Agent。基于已有文章正文，生成图运营合一文档。"""
+
 from dataclasses import dataclass
 
 from anthropic import Anthropic
@@ -12,7 +13,7 @@ class OpsWriteRequest:
     """ops 文档生成请求。"""
 
     article_markdown: str  # 已有的文章正文
-    topic: str             # 选题（用于标题）
+    topic: str  # 选题（用于标题）
 
 
 @dataclass
@@ -40,8 +41,7 @@ class OpsWriter:
         settings = get_settings()
         if not settings.anthropic_api_key:
             raise RuntimeError(
-                "未找到 ANTHROPIC_API_KEY。\n"
-                "请在 agent/.env 里填入：ANTHROPIC_API_KEY=sk-ant-xxx"
+                "未找到 ANTHROPIC_API_KEY。\n请在 agent/.env 里填入：ANTHROPIC_API_KEY=sk-ant-xxx"
             )
         self.client = Anthropic(api_key=settings.anthropic_api_key)
         self.model = settings.anthropic_model

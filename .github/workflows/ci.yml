@@ -1,0 +1,108 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# 节省 Actions 用量：同一 PR 新 push 自动取消老的运行
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    name: Backend (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.13"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+          cache-dependency-glob: backend/uv.lock
+
+      - name: Set up Python ${{ matrix.python-version }}
+        run: uv python install ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        working-directory: backend
+        run: uv sync --extra dev
+
+      - name: Ruff lint
+        working-directory: backend
+        run: uv run ruff check src
+
+      - name: Ruff format check
+        working-directory: backend
+        run: uv run ruff format --check src
+
+      - name: Pytest
+        working-directory: backend
+        env:
+          ANTHROPIC_API_KEY: "sk-ant-ci-dummy"
+          CONFIG_DIR: "../config"
+        run: uv run pytest tests/ -v --tb=short
+
+  grep-smoke:
+    name: grep 6 项扫描自检
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+          cache-dependency-glob: backend/uv.lock
+
+      - name: Install
+        working-directory: backend
+        run: uv sync
+
+      - name: 创建 grep 自检 fixture（确认能检出违规）
+        run: |
+          mkdir -p /tmp/grep-fixture
+          cat > /tmp/grep-fixture/bad.md <<'EOF'
+          # 测试文档
+
+          其实这段开头就用了禁用词，让我们一起来看看。
+
+          第一，这是模板连词。
+          第二，这也是。
+
+          「这是半括号」必须被检出。
+
+          大时代啊，朋友们。
+          EOF
+
+      - name: 期望扫到违规（exit 非零 = 通过）
+        working-directory: backend
+        env:
+          ANTHROPIC_API_KEY: "sk-ant-ci-dummy"
+          CONFIG_DIR: "../config"
+        run: |
+          if uv run tpagent scan /tmp/grep-fixture/; then
+            echo "❌ 扫描应该检出违规但没检出 → grep 逻辑坏了"
+            exit 1
+          else
+            echo "✓ 违规被正确检出，grep 工作正常"
+          fi
+
+      - name: 验证当前项目的 README / DESIGN 自己不违规
+        working-directory: backend
+        env:
+          ANTHROPIC_API_KEY: "sk-ant-ci-dummy"
+          CONFIG_DIR: "../config"
+        run: |
+          # 项目自己的文档应该不会触发任何 grep 规则
+          # 如果触发了说明我们自己的文档有 AI 痕迹
+          # 仅 dry-check, 不强制失败（因为 DESIGN.md 故意提到禁用词作为反例）
+          uv run tpagent scan ../README.md || echo "README 有命中（不阻塞 CI）"

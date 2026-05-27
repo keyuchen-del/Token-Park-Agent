@@ -3,12 +3,12 @@
 DALL-E 等图像模型对中文字符渲染极差，几乎一定乱码。
 工作流：AI 生成无文字底图 → 用 Pillow 在本地用真实字体叠加中文。
 """
+
 import platform
 from dataclasses import dataclass
 from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
-
 
 # 常见中文字体路径（按平台找）
 _CHINESE_FONT_CANDIDATES = {
@@ -25,9 +25,9 @@ _CHINESE_FONT_CANDIDATES = {
         "/usr/share/fonts/truetype/wqy/wqy-zenhei.ttc",
     ],
     "Windows": [
-        "C:/Windows/Fonts/msyh.ttc",        # 微软雅黑
-        "C:/Windows/Fonts/simsun.ttc",      # 宋体
-        "C:/Windows/Fonts/simhei.ttf",      # 黑体
+        "C:/Windows/Fonts/msyh.ttc",  # 微软雅黑
+        "C:/Windows/Fonts/simsun.ttc",  # 宋体
+        "C:/Windows/Fonts/simhei.ttf",  # 黑体
     ],
 }
 
@@ -51,13 +51,13 @@ class TextLayer:
     """单个文字图层。"""
 
     text: str
-    x: int                          # 左上角 x
-    y: int                          # 左上角 y
+    x: int  # 左上角 x
+    y: int  # 左上角 y
     font_size: int = 48
-    color: str = "#3A1C1C"          # 默认深棕红黑（Token 公园色板）
-    font_path: Path | None = None   # None = 自动找
-    align: str = "left"             # left / center / right
-    max_width: int | None = None    # 超过自动换行
+    color: str = "#3A1C1C"  # 默认深棕红黑（Token 公园色板）
+    font_path: Path | None = None  # None = 自动找
+    align: str = "left"  # left / center / right
+    max_width: int | None = None  # 超过自动换行
 
 
 def _wrap_text(
@@ -111,10 +111,7 @@ def overlay_text(
         font = ImageFont.truetype(str(font_path), layer.font_size)
 
         # 处理换行
-        if layer.max_width:
-            lines = _wrap_text(layer.text, font, layer.max_width)
-        else:
-            lines = [layer.text]
+        lines = _wrap_text(layer.text, font, layer.max_width) if layer.max_width else [layer.text]
 
         # 逐行绘制
         y = layer.y
@@ -165,30 +162,36 @@ def make_cover_with_text(
     layers = []
 
     if main_number:
-        layers.append(TextLayer(
-            text=main_number,
-            x=int(width * 0.08),
-            y=int(height * 0.20),
-            font_size=int(height * 0.45),
-            color=text_color,
-        ))
+        layers.append(
+            TextLayer(
+                text=main_number,
+                x=int(width * 0.08),
+                y=int(height * 0.20),
+                font_size=int(height * 0.45),
+                color=text_color,
+            )
+        )
 
     if main_symbol:
-        layers.append(TextLayer(
-            text=main_symbol,
-            x=int(width * 0.70),
-            y=int(height * 0.30),
-            font_size=int(height * 0.30),
-            color=accent_color,
-        ))
+        layers.append(
+            TextLayer(
+                text=main_symbol,
+                x=int(width * 0.70),
+                y=int(height * 0.30),
+                font_size=int(height * 0.30),
+                color=accent_color,
+            )
+        )
 
-    layers.append(TextLayer(
-        text=title,
-        x=int(width * 0.08),
-        y=int(height * 0.80),
-        font_size=int(height * 0.06),
-        color=text_color,
-        max_width=int(width * 0.84),
-    ))
+    layers.append(
+        TextLayer(
+            text=title,
+            x=int(width * 0.08),
+            y=int(height * 0.80),
+            font_size=int(height * 0.06),
+            color=text_color,
+            max_width=int(width * 0.84),
+        )
+    )
 
     return overlay_text(base_image_path, layers, output_path)

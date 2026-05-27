@@ -1,4 +1,5 @@
 """FastAPI 应用入口."""
+
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI

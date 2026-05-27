@@ -1,6 +1,7 @@
 """SQLite session 持久化。"""
+
 from datetime import datetime
-from enum import Enum
+from enum import StrEnum
 from pathlib import Path
 
 from sqlmodel import Field, Session, SQLModel, create_engine, select
@@ -8,14 +9,14 @@ from sqlmodel import Field, Session, SQLModel, create_engine, select
 from tpagent.settings import get_settings
 
 
-class SessionStage(str, Enum):
+class SessionStage(StrEnum):
     """四阶段状态机。"""
 
-    topic = "topic"        # 选题待审
-    article = "article"    # 初稿待审
-    images = "images"      # 图片待选
-    ops = "ops"            # ops 文档已生成
-    ready = "ready"        # 上传待审
+    topic = "topic"  # 选题待审
+    article = "article"  # 初稿待审
+    images = "images"  # 图片待选
+    ops = "ops"  # ops 文档已生成
+    ready = "ready"  # 上传待审
     published = "published"  # 已发布
 
 

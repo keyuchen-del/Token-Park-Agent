@@ -1,4 +1,5 @@
 """YAML 配置加载器。把 config/ 下的写作规则、grep 规则、prompts 加载到内存。"""
+
 from pathlib import Path
 from typing import Any
 

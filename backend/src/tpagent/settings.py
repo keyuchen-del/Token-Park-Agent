@@ -1,4 +1,5 @@
 """环境变量配置加载."""
+
 from pathlib import Path
 
 from pydantic import Field

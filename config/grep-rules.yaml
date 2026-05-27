@@ -52,8 +52,14 @@ rules:
     severity: error
     exceptions:
       - "第三大头"
+      - "第四大头"
       - "第二季度"
       - "第三方"
+      # 序数连续表述：第三、第四 等
+      - "第一、第二"
+      - "第二、第三"
+      - "第三、第四"
+      - "第四、第五"
 
   - id: khazix_ending_signatures
     name: 卡兹克结尾标志

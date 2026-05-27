@@ -1,4 +1,5 @@
 """tpagent CLI — 本地命令行入口。"""
+
 from pathlib import Path
 
 import typer
@@ -9,7 +10,7 @@ from rich.table import Table
 
 from tpagent import __version__
 from tpagent.agents import ArticleWriter, WriteRequest
-from tpagent.agents.ops_writer import OpsWriteRequest, OpsWriter
+from tpagent.agents.ops_writer import OpsWriter, OpsWriteRequest
 from tpagent.agents.topic_researcher import TopicResearcher, TopicResearchRequest
 from tpagent.grep import GrepReport, scan_directory, scan_file
 from tpagent.services.ops_parser import filter_required, parse_ops_images, specs_summary
@@ -55,8 +56,7 @@ def _print_grep_report(report: GrepReport) -> None:
         console.print("\n[yellow]⚠️  例外（需人工判断）：[/yellow]")
         for h in report.exceptions:
             console.print(
-                f"  [{h.rule_name}] {Path(h.file).name}:{h.line_no}"
-                f" — [dim]{h.matched_text!r}[/dim]"
+                f"  [{h.rule_name}] {Path(h.file).name}:{h.line_no} — [dim]{h.matched_text!r}[/dim]"
             )
 
     if report.can_publish:
@@ -99,12 +99,8 @@ def version() -> None:
 @app.command()
 def topics(
     direction: str = typer.Option(..., "--direction", "-d", help="选题方向，一句话"),
-    seed_links: list[str] = typer.Option(
-        None, "--link", "-l", help="信源链接（可多次）"
-    ),
-    avoid: list[str] = typer.Option(
-        None, "--avoid", help="避免撞稿的近期选题（可多次）"
-    ),
+    seed_links: list[str] = typer.Option(None, "--link", "-l", help="信源链接（可多次）"),
+    avoid: list[str] = typer.Option(None, "--avoid", help="避免撞稿的近期选题（可多次）"),
 ) -> None:
     """拉今日热点 + 整理候选清单。
 
@@ -112,21 +108,25 @@ def topics(
         tpagent topics --direction "今天 AI 圈和国内科技圈"
         tpagent topics -d "国内 AI 资本开支" -l https://xxx -l https://yyy
     """
-    console.print(Panel.fit(
-        f"[bold]方向:[/bold] {direction}\n"
-        + (f"[bold]信源:[/bold] {', '.join(seed_links)}\n" if seed_links else "")
-        + (f"[bold]避免撞稿:[/bold] {', '.join(avoid)}" if avoid else ""),
-        title="🔍 选题研究",
-        border_style="cyan",
-    ))
+    console.print(
+        Panel.fit(
+            f"[bold]方向:[/bold] {direction}\n"
+            + (f"[bold]信源:[/bold] {', '.join(seed_links)}\n" if seed_links else "")
+            + (f"[bold]避免撞稿:[/bold] {', '.join(avoid)}" if avoid else ""),
+            title="🔍 选题研究",
+            border_style="cyan",
+        )
+    )
 
     researcher = TopicResearcher()
     with console.status("[cyan]Claude 拉热点 + 整理候选... 约 30-90 秒[/cyan]"):
-        result = researcher.research(TopicResearchRequest(
-            direction=direction,
-            seed_links=seed_links,
-            avoid_topics=avoid,
-        ))
+        result = researcher.research(
+            TopicResearchRequest(
+                direction=direction,
+                seed_links=seed_links,
+                avoid_topics=avoid,
+            )
+        )
 
     _print_token_usage(
         result.input_tokens,
@@ -145,18 +145,10 @@ def topics(
 @app.command()
 def write(
     topic: str = typer.Option(..., "--topic", "-t", help="选题，一句话"),
-    material: str | None = typer.Option(
-        None, "--material", "-m", help="信源链接或素材"
-    ),
-    angle: str | None = typer.Option(
-        None, "--angle", "-a", help="切入角度，特殊要求"
-    ),
-    show_article: bool = typer.Option(
-        False, "--show", "-s", help="终端直接打印文章 markdown"
-    ),
-    also_ops: bool = typer.Option(
-        False, "--with-ops", help="写完正文紧接着生成 ops 文档"
-    ),
+    material: str | None = typer.Option(None, "--material", "-m", help="信源链接或素材"),
+    angle: str | None = typer.Option(None, "--angle", "-a", help="切入角度，特殊要求"),
+    show_article: bool = typer.Option(False, "--show", "-s", help="终端直接打印文章 markdown"),
+    also_ops: bool = typer.Option(False, "--with-ops", help="写完正文紧接着生成 ops 文档"),
 ) -> None:
     """写一篇 Token 公园风格的公众号长文。
 
@@ -165,13 +157,15 @@ def write(
                       --material "https://anthropic.com/news/mythos" \\
                       --angle "AI 公司自己喊停的剧本" --with-ops
     """
-    console.print(Panel.fit(
-        f"[bold]选题:[/bold] {topic}\n"
-        + (f"[bold]角度:[/bold] {angle}\n" if angle else "")
-        + (f"[bold]素材:[/bold] {material}" if material else ""),
-        title="✍️  开始写作",
-        border_style="cyan",
-    ))
+    console.print(
+        Panel.fit(
+            f"[bold]选题:[/bold] {topic}\n"
+            + (f"[bold]角度:[/bold] {angle}\n" if angle else "")
+            + (f"[bold]素材:[/bold] {material}" if material else ""),
+            title="✍️  开始写作",
+            border_style="cyan",
+        )
+    )
 
     # 创建 session
     article_session = create_session(topic=topic, angle=angle, material=material)
@@ -235,10 +229,12 @@ def _generate_ops(article_path: Path, topic: str, session_id: int | None = None)
 
     ops_writer = OpsWriter()
     with console.status("[cyan]Claude 正在写 ops 文档... 约 30-60 秒[/cyan]"):
-        result = ops_writer.write(OpsWriteRequest(
-            article_markdown=article_md,
-            topic=topic,
-        ))
+        result = ops_writer.write(
+            OpsWriteRequest(
+                article_markdown=article_md,
+                topic=topic,
+            )
+        )
 
     ops_path = save_ops(result.ops_markdown, topic)
     _print_token_usage(
@@ -267,7 +263,9 @@ def _generate_ops(article_path: Path, topic: str, session_id: int | None = None)
 def ops(
     article: Path = typer.Argument(..., help="已有文章的 .md 路径"),
     topic: str | None = typer.Option(
-        None, "--topic", "-t",
+        None,
+        "--topic",
+        "-t",
         help="选题（用于 ops 文件名）。不填时从文件名推断",
     ),
 ) -> None:
@@ -288,11 +286,13 @@ def ops(
         topic = parts[3] if len(parts) >= 4 else stem
         console.print(f"[dim]从文件名推断选题: {topic}[/dim]")
 
-    console.print(Panel.fit(
-        f"[bold]源文章:[/bold] {article.name}\n[bold]选题:[/bold] {topic}",
-        title="🛠 生成 ops 文档",
-        border_style="cyan",
-    ))
+    console.print(
+        Panel.fit(
+            f"[bold]源文章:[/bold] {article.name}\n[bold]选题:[/bold] {topic}",
+            title="🛠 生成 ops 文档",
+            border_style="cyan",
+        )
+    )
 
     _generate_ops(article, topic)
 
@@ -333,7 +333,9 @@ def scan(
 def list_cmd(
     limit: int = typer.Option(20, "--limit", "-n", help="显示数量"),
     stage: str | None = typer.Option(
-        None, "--stage", "-s",
+        None,
+        "--stage",
+        "-s",
         help="过滤阶段: topic / article / images / ops / ready / published",
     ),
 ) -> None:
@@ -400,27 +402,34 @@ def list_cmd(
 def images(
     ops_doc: Path = typer.Argument(..., help="ops 文档 .md 路径"),
     required_only: bool = typer.Option(
-        True, "--required-only/--all",
+        True,
+        "--required-only/--all",
         help="只出 ⭐ 必配图（默认）还是全部",
     ),
     candidates: int = typer.Option(
-        3, "--candidates", "-c",
+        3,
+        "--candidates",
+        "-c",
         help="每张图生成多少个候选",
     ),
     size: str = typer.Option(
-        "1792x1024", "--size",
+        "1792x1024",
+        "--size",
         help="图片尺寸：1024x1024 / 1792x1024 / 1024x1792",
     ),
     quality: str = typer.Option(
-        "standard", "--quality",
+        "standard",
+        "--quality",
         help="standard 或 hd（hd 慢且贵）",
     ),
     upload: bool = typer.Option(
-        False, "--upload",
+        False,
+        "--upload",
         help="生成后上传到 R2（需配置 R2_* env）",
     ),
     dry_run: bool = typer.Option(
-        False, "--dry-run",
+        False,
+        "--dry-run",
         help="只解析 ops 文档不实际调 DALL-E（看花多少钱）",
     ),
 ) -> None:
@@ -440,14 +449,16 @@ def images(
         console.print(f"[red]❌ ops 文档不存在: {ops_doc}[/red]")
         raise typer.Exit(1)
 
-    console.print(Panel.fit(
-        f"[bold]ops 文档:[/bold] {ops_doc.name}\n"
-        f"[bold]模式:[/bold] {'只必配图' if required_only else '全部图'}\n"
-        f"[bold]每图候选:[/bold] {candidates}\n"
-        f"[bold]尺寸:[/bold] {size} {quality}",
-        title="🎨 图像生成 pipeline",
-        border_style="cyan",
-    ))
+    console.print(
+        Panel.fit(
+            f"[bold]ops 文档:[/bold] {ops_doc.name}\n"
+            f"[bold]模式:[/bold] {'只必配图' if required_only else '全部图'}\n"
+            f"[bold]每图候选:[/bold] {candidates}\n"
+            f"[bold]尺寸:[/bold] {size} {quality}",
+            title="🎨 图像生成 pipeline",
+            border_style="cyan",
+        )
+    )
 
     # 解析 ops
     specs = parse_ops_images(ops_doc)
@@ -484,6 +495,7 @@ def images(
 
     # 实际出图
     from tpagent.services.image_generator import DalleImageGenerator
+
     gen = DalleImageGenerator()
 
     output_dir = ops_doc.parent / f"{ops_doc.stem}-images"
@@ -518,6 +530,7 @@ def images(
     # 可选 R2 上传
     if upload:
         from tpagent.services.r2_uploader import R2Uploader
+
         uploader = R2Uploader()
         if not uploader.is_configured:
             console.print(
@@ -543,6 +556,7 @@ def serve(
 ) -> None:
     """启动 FastAPI 服务（API 模式）。"""
     import uvicorn
+
     uvicorn.run("tpagent.main:app", host=host, port=port, reload=reload)
 
 

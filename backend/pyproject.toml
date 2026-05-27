@@ -49,7 +49,9 @@ target-version = "py311"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "N", "W", "UP", "B", "SIM"]
-ignore = ["E501"]
+# E501: 行长度（pyproject 已设 line-length=100）
+# B008: typer/fastapi 标准做法是在参数默认值里调用 Argument/Option，false positive
+ignore = ["E501", "B008"]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"

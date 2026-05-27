@@ -1,4 +1,5 @@
 """选题研究 Agent。用 Claude + web_search tool 拉今日热点 + 整理候选清单。"""
+
 from dataclasses import dataclass
 
 from anthropic import Anthropic
@@ -42,8 +43,7 @@ class TopicResearcher:
         settings = get_settings()
         if not settings.anthropic_api_key:
             raise RuntimeError(
-                "未找到 ANTHROPIC_API_KEY。\n"
-                "请在 agent/.env 里填入：ANTHROPIC_API_KEY=sk-ant-xxx"
+                "未找到 ANTHROPIC_API_KEY。\n请在 agent/.env 里填入：ANTHROPIC_API_KEY=sk-ant-xxx"
             )
         self.client = Anthropic(api_key=settings.anthropic_api_key)
         self.model = settings.anthropic_model

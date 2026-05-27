@@ -2,6 +2,7 @@
 
 迁移自 templates/writing-style.md 第七节扫描脚本。
 """
+
 import re
 from dataclasses import dataclass
 from pathlib import Path
@@ -98,11 +99,8 @@ def scan_files(file_paths: list[Path]) -> GrepReport:
             rule_summary.setdefault(rule_id, 0)
 
             for pattern in patterns:
-                if multiline:
-                    # 行首匹配 (如 ^## 接下来)
-                    regex = re.compile(pattern, re.MULTILINE)
-                else:
-                    regex = re.compile(pattern)
+                # multiline=True 时启用行首匹配（如 ^## 接下来）
+                regex = re.compile(pattern, re.MULTILINE) if multiline else re.compile(pattern)
 
                 for line_no, line in enumerate(lines, start=1):
                     for match in regex.finditer(line):

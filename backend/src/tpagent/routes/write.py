@@ -1,4 +1,5 @@
 """POST /api/write — 写文章 + grep 校验."""
+
 from fastapi import APIRouter, HTTPException
 
 from tpagent.agents import ArticleWriter, WriteRequest

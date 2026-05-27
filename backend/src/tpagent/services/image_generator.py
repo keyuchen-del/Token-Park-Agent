@@ -10,6 +10,7 @@ DALL-E 3 限制：
 - 所以 num_candidates 是多次调用
 - 中文字几乎一定乱码 → 配合 text_overlay 服务做后期叠字
 """
+
 import asyncio
 from dataclasses import dataclass
 from pathlib import Path
@@ -24,10 +25,10 @@ from tpagent.settings import get_settings
 class GeneratedImage:
     """单张生成结果。"""
 
-    index: int                # 候选序号
-    image_path: Path          # 本地保存路径
-    revised_prompt: str       # DALL-E 实际用的 prompt（OpenAI 会改写）
-    url: str                  # OpenAI 返回的 URL（24h 后失效）
+    index: int  # 候选序号
+    image_path: Path  # 本地保存路径
+    revised_prompt: str  # DALL-E 实际用的 prompt（OpenAI 会改写）
+    url: str  # OpenAI 返回的 URL（24h 后失效）
 
 
 @dataclass
@@ -36,7 +37,7 @@ class GenerationResult:
 
     candidates: list[GeneratedImage]
     prompt: str
-    cost_usd: float           # 估算成本
+    cost_usd: float  # 估算成本
 
 
 # DALL-E 3 定价（2026 当前公开价）
@@ -99,7 +100,7 @@ class DalleImageGenerator:
         self,
         prompt: str,
         num_candidates: int = 3,
-        size: str = "1792x1024",   # 接近 1.91:1 公众号封面比例
+        size: str = "1792x1024",  # 接近 1.91:1 公众号封面比例
         quality: str = "standard",  # standard / hd
         output_dir: Path | None = None,
         slug: str = "image",
@@ -127,12 +128,14 @@ class DalleImageGenerator:
             url, revised = self._generate_one(prompt, size, quality)
             image_path = output_dir / f"{slug}-candidate-{i + 1}.png"
             self._download_image(url, image_path)
-            candidates.append(GeneratedImage(
-                index=i + 1,
-                image_path=image_path,
-                revised_prompt=revised,
-                url=url,
-            ))
+            candidates.append(
+                GeneratedImage(
+                    index=i + 1,
+                    image_path=image_path,
+                    revised_prompt=revised,
+                    url=url,
+                )
+            )
 
         cost_per_image = _DALLE_PRICING.get(quality, {}).get(size, 0.04)
         total_cost = round(cost_per_image * num_candidates, 4)
@@ -173,9 +176,7 @@ class DalleImageGenerator:
                 url=url,
             )
 
-        candidates = await asyncio.gather(
-            *[gen_one(i) for i in range(num_candidates)]
-        )
+        candidates = await asyncio.gather(*[gen_one(i) for i in range(num_candidates)])
 
         cost_per_image = _DALLE_PRICING.get(quality, {}).get(size, 0.04)
         total_cost = round(cost_per_image * num_candidates, 4)

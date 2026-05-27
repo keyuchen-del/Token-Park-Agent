@@ -1,4 +1,5 @@
 """ops 文档解析器。从 ops markdown 里提取每张图的 image2 prompt。"""
+
 import re
 from dataclasses import dataclass
 from pathlib import Path
@@ -8,12 +9,12 @@ from pathlib import Path
 class ImageSpec:
     """从 ops 文档解析出来的单张图规格。"""
 
-    image_id: str           # 如 "图 1" / "图 2"
-    image_title: str        # 如 "封面图" / "数据对比卡片"
-    prompt_zh: str | None   # 中文 prompt
-    prompt_en: str | None   # 英文 prompt
+    image_id: str  # 如 "图 1" / "图 2"
+    image_title: str  # 如 "封面图" / "数据对比卡片"
+    prompt_zh: str | None  # 中文 prompt
+    prompt_en: str | None  # 英文 prompt
     negative_words: str | None  # 负向词
-    is_required: bool       # 是否带 ⭐（必配）
+    is_required: bool  # 是否带 ⭐（必配）
 
 
 # 匹配 "### ⭐ 图 1：封面图" / "### 图 3：xxx"
@@ -57,14 +58,16 @@ def parse_ops_images(ops_path: Path) -> list[ImageSpec]:
         en_match = _PROMPT_EN_RE.search(block)
         neg_match = _NEGATIVE_RE.search(block)
 
-        specs.append(ImageSpec(
-            image_id=heading.group("id").strip(),
-            image_title=heading.group("title").strip(),
-            prompt_zh=zh_match.group("prompt").strip() if zh_match else None,
-            prompt_en=en_match.group("prompt").strip() if en_match else None,
-            negative_words=neg_match.group(1).strip() if neg_match else None,
-            is_required=bool(heading.group("star")),
-        ))
+        specs.append(
+            ImageSpec(
+                image_id=heading.group("id").strip(),
+                image_title=heading.group("title").strip(),
+                prompt_zh=zh_match.group("prompt").strip() if zh_match else None,
+                prompt_en=en_match.group("prompt").strip() if en_match else None,
+                negative_words=neg_match.group(1).strip() if neg_match else None,
+                is_required=bool(heading.group("star")),
+            )
+        )
 
     return specs
 
@@ -81,8 +84,5 @@ def specs_summary(specs: list[ImageSpec]) -> str:
         star = "⭐ " if s.is_required else "   "
         zh_status = "✅" if s.prompt_zh else "❌"
         en_status = "✅" if s.prompt_en else "❌"
-        lines.append(
-            f"{star}{s.image_id} {s.image_title}"
-            f"  [中 {zh_status} / 英 {en_status}]"
-        )
+        lines.append(f"{star}{s.image_id} {s.image_title}  [中 {zh_status} / 英 {en_status}]")
     return "\n".join(lines)

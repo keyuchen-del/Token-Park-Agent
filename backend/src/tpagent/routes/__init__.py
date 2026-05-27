@@ -1,4 +1,5 @@
 """API 路由集合."""
+
 from fastapi import APIRouter
 
 from tpagent.routes.write import router as write_router
