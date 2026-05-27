@@ -1,0 +1,40 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+env/
+.uv-cache/
+*.egg-info/
+dist/
+build/
+
+# Node
+node_modules/
+.next/
+.turbo/
+.pnpm-store/
+
+# Env / secrets — never commit
+.env
+.env.local
+.env.*.local
+config/brand.yaml
+
+# IDE
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# Data / outputs
+backend/data/
+backend/sessions/
+backend/*.db
+backend/*.sqlite
+
+# Logs
+*.log

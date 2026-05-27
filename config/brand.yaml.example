@@ -1,0 +1,65 @@
+# 账号品牌信息（fork 后改这里）
+# 复制为 brand.yaml 后会被 .gitignore 排除，不会进仓库
+
+account:
+  name_zh: "Token 公园"
+  name_en: "Token Park"
+  positioning: "泛科技自媒体账号"
+  perspective: "学习者 / 同行者"
+  audiences:
+    primary:
+      - "入门期科技从业者"
+      - "跨界关注科技的白领"
+    secondary:
+      - "各平台入门爱好者"
+
+author:
+  signature: "/ 作者：Token 公园"
+  contact_email: "xxx@xxx.com"  # 发布前替换
+
+# === 视觉锚点 ===
+visual:
+  positioning: "冷静派科技号 / editorial 杂志风"
+  reference_publications:
+    - "Nature"
+    - "MIT Technology Review"
+    - "单读"
+    - "FT 金融时报"
+  reject_list:
+    - 赛博朋克
+    - 霓虹光感
+    - 3D 金属渲染
+    - 拟人化角色
+    - 过度饱和色
+    - 五角星 / 国旗
+
+# === 默认色板（华为红色系，可按选题调整）===
+colors:
+  bg_primary: "#FDF2EE"      # 暖粉米
+  bg_card: "#F8E1DA"         # 淡米粉红
+  text_primary: "#3A1C1C"    # 深棕红黑
+  accent_main: "#C9302C"     # 中等华为红衍生
+  accent_strong: "#8B1A2E"   # 深酒红
+  border_subtle: "#E8C9BF"
+
+# === 字体 ===
+typography:
+  chinese_heading: "思源宋体 Heavy"
+  chinese_body: "思源宋体 Regular"
+  latin: "Söhne / Inter / GT America"
+  monospace: "JetBrains Mono / IBM Plex Mono"
+
+# === 默认尺寸 ===
+sizes:
+  cover_ratio: "1.91:1"
+  cover_px: "1200x630"
+  body_image_ratio: "4:3"
+  body_image_px: "1200x900"
+  min_dpi: 300
+
+# === CTA 模板（用于结尾，按主题挑一个）===
+cta_templates:
+  ai_compute: "转给一个还在被算力账单逼疯的朋友"
+  ai_developer: "转给一个还在堆 GPU 的朋友"
+  semiconductor: "发给一个研半导体或者炒科创板的朋友"
+  generic: "如果觉得说清楚了几件事，发给一个会感兴趣的朋友"

@@ -1,0 +1,80 @@
+# 发布前 6 项扫描规则（迁移自 templates/writing-style.md 第七节）
+# 每条规则 Python 化，扫到任何命中 = 不能发布
+# 部分规则有 exceptions（如序数表述），命中后人工判断
+
+rules:
+  - id: cross_date_reference
+    name: 跨日期引用
+    description: 避免引用 Token 公园自己其它日期的文章
+    patterns:
+      - "昨天"
+      - "上次"
+      - "之前那篇"
+      - "前几天聊过"
+      - "上一篇"
+    severity: error
+    auto_exceptions:
+      # 描述当天事件可保留：xxx 昨天 yyy（但 grep 仍会命中，需人工判断）
+      - "当天事件描述"
+
+  - id: ai_high_freq_words
+    name: AI 高频词
+    description: 替换为更口语的表达
+    patterns:
+      - "其实"
+      - "事实上"
+      - "说白了"
+      - "让我们"
+      - "下面我"
+      - "值得我们"
+      - "令人深思"
+      - "不容忽视"
+      - "举足轻重"
+      - "不仅.*而且"
+      - "既.*又"
+    severity: error
+
+  - id: half_brackets
+    name: 半括号残留
+    description: 「」要全部换成加粗、双引号或《》
+    patterns:
+      - "「"
+      - "」"
+    severity: error
+
+  - id: templated_connectors
+    name: 模板化连词
+    description: 第一/第二/第三作连词必须替换为首先/然后/还有
+    patterns:
+      - "第一[，、]"
+      - "第二[，、]"
+      - "第三[，、]"
+    severity: error
+    exceptions:
+      - "第三大头"
+      - "第二季度"
+      - "第三方"
+
+  - id: khazix_ending_signatures
+    name: 卡兹克结尾标志
+    description: 避免完全模仿，找到自己的结尾风格
+    patterns:
+      - "大时代啊"
+      - "三连吧"
+      - "我们，下次再见"
+    severity: error
+
+  - id: ai_heading_smell
+    name: 标题位置 AI 痕迹
+    description: 段首标题不要用"接下来""那么""总结一下"
+    patterns:
+      - "^## 接下来"
+      - "^## 那么"
+      - "^## 总结一下"
+    severity: error
+    multiline: true
+
+# 发布判断
+publish_criteria:
+  all_severity_error_must_be_zero: true
+  exceptions_require_human_judgment: true
