@@ -1,0 +1,22 @@
+# Railway 后端部署配置
+# 用法：在 Railway 新建 service，连 GitHub repo，Railway 自动读这个 toml
+# 文档：https://docs.railway.app/reference/config-as-code
+
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "backend/Dockerfile"
+buildCommand = ""
+
+[deploy]
+startCommand = "uvicorn tpagent.main:app --host 0.0.0.0 --port $PORT"
+healthcheckPath = "/health"
+healthcheckTimeout = 30
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 3
+
+# 必填 env vars（在 Railway dashboard 配置，不要写在 toml 里）
+# ANTHROPIC_API_KEY = sk-ant-xxx
+# OPENAI_API_KEY    = sk-xxx           （可选，跑 images 才需要）
+# R2_ACCOUNT_ID     = xxx              （可选，云端图床才需要）
+# R2_ACCESS_KEY_ID  = xxx              （可选）
+# R2_SECRET_ACCESS_KEY = xxx           （可选）

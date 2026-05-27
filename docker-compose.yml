@@ -1,0 +1,55 @@
+# 本地一键启动 token-park-agent
+# 用法：
+#   1. 复制 .env.example 为 .env，填 API keys
+#   2. docker compose up --build
+#   3. 后端: http://localhost:8000/docs
+#      前端: http://localhost:3000（V0.3 加入前端后启用）
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: tpagent-backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      # 容器内固定路径，覆盖 .env 默认
+      CONFIG_DIR: /app/config
+      DATA_DIR: /app/data
+      SESSIONS_DIR: /app/sessions
+      DB_PATH: /app/data/tpagent.db
+    volumes:
+      # 数据卷：持久化 session 数据 + SQLite
+      - tpagent-data:/app/data
+      - tpagent-sessions:/app/sessions
+      # 开发期可以 mount config 实时改风格规则
+      - ./config:/app/config:ro
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+
+  # V0.3 前端加入后启用
+  # frontend:
+  #   build:
+  #     context: ./frontend
+  #     dockerfile: Dockerfile
+  #   container_name: tpagent-frontend
+  #   restart: unless-stopped
+  #   ports:
+  #     - "3000:3000"
+  #   environment:
+  #     NEXT_PUBLIC_API_URL: http://localhost:8000
+  #   depends_on:
+  #     backend:
+  #       condition: service_healthy
+
+volumes:
+  tpagent-data:
+  tpagent-sessions:
