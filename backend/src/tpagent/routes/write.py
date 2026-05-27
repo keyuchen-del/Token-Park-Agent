@@ -74,6 +74,7 @@ async def write_article(req: WriteRequestModel) -> WriteResponseModel:
     )
 
     return WriteResponseModel(
+        session_id=article_session.id,
         article_markdown=result.article_markdown,
         article_path=str(article_path),
         char_count=len(result.article_markdown),
